@@ -51,15 +51,11 @@ public class Avoidbot {
                 System.out.println("Light: " + litSensor.readNormalizedValue());
             }
             boolean turnPositive = random.nextBoolean();
+            System.out.println("Turn " + (turnPositive ? "right" : "left"));
             while(running && cmDist < distanceBuffer) {//Close to obstacle so turn
                 System.out.println("Distance: " + cmDist);
-                System.out.println("Turn " + (turnPositive ? "right" : "left"));
                 setSpeed();
-                if(turnPositive) {
-                    motorRight.rotate(180);
-                } else {
-                    motorRight.rotate(-180);
-                }
+                turn(turnPositive, 180);
                 cmDist = distSensor.getDistance();
             }
             try {
@@ -72,6 +68,16 @@ public class Avoidbot {
         try {
             Thread.sleep(1000);
         }catch(InterruptedException ie) {
+        }
+    }
+
+    private static void turn(boolean right, int degrees) {
+        if(right) {
+            motorRight.rotate(degrees, true);
+            motorLeft.rotate(-degrees);
+        } else {
+            motorRight.rotate(-degrees, true);
+            motorLeft.rotate(degrees);
         }
     }
 
