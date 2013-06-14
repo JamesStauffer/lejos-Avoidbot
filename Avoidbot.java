@@ -1,6 +1,7 @@
 import java.lang.System;
 import java.util.*;
 import lejos.nxt.*;
+import lejos.robotics.objectdetection.*;
 import lejos.util.*;
 
 /**
@@ -18,11 +19,17 @@ public class Avoidbot {
  
     public static void main (String[] aArg) throws Exception {
         System.out.println("Started AvoidBot");
-        new ButtonWatcherThread(new TimerListener() {
-            public void timedOut() {
-                running = !running;
+        FeatureDetector buttonDetector = new TouchFeatureDetector(new TouchSensor(SensorPort.S3));
+        buttonDetector.addListener(new FeatureListener() {
+            public void featureDetected(Feature feature, FeatureDetector detector) {
+                System.out.println("Button pressed");
+                try {
+                    Thread.sleep(1000);
+                }catch(InterruptedException ie) {
+                }
+                System.exit(0);
             }
-        }).start();
+        });
         final float circumference = 17.5f;
         final int distanceBuffer = 50;
         final int rotateDistance = 80;
@@ -94,39 +101,5 @@ public class Avoidbot {
     static NXTRegulatedMotor motorLeft = Motor.C;
     private static SoundSensor sound = new SoundSensor(SensorPort.S1);
     private static boolean running = true;
-}
-
-class ButtonWatcherThread extends Thread {
-    public ButtonWatcherThread(TimerListener tl) {
-        this.tl = tl;
-        this.setDaemon(true);
-    }
-
-    public void run() {
-        wasPressedLast = touchSensor.isPressed();
-        while(true) {
-            boolean isPressed = touchSensor.isPressed();
-            if(wasPressedLast != isPressed) {
-                if(isPressed) {
-                    System.out.println("Button pressed");
-                    try {
-                        Thread.sleep(1000);
-                    }catch(InterruptedException ie) {
-                    }
-                    System.exit(0);
-                }
-                wasPressedLast = isPressed;
-            }
-            try {
-                Thread.sleep(100);
-            } catch(InterruptedException ie) {
-             //Ignore
-            }
-        }
-        
-    }
-    private TimerListener tl;
-    private boolean wasPressedLast;
-    private TouchSensor touchSensor = new TouchSensor(SensorPort.S3);
 }
 
